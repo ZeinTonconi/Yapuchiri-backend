@@ -6,6 +6,12 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
+const app = express()
+const port = 3000
+
+app.use(cors())
+app.use(express.json())
+
 const dataSource = new typeorm.DataSource({
     type: "postgres",
     host: process.env.POSTGRES_HOST,
@@ -14,20 +20,14 @@ const dataSource = new typeorm.DataSource({
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DATABASE,
     synchronize: true,
+    ssl: true,
     entities: [
-        require("./entity/Post"), 
-        require("./entity/Category")
+
     ],
 })
 
 dataSource.initialize()
     .then(() => {
-        const app = express()
-        const port = 3000
-
-        app.use(cors())
-        app.use(express.json())
-
         app.get('/', (req, res) => {
             res.status(200).json("Server is running")
         })
@@ -38,5 +38,5 @@ dataSource.initialize()
             console.log(`Server is running on port ${port}`)
         })
     })
-    
+
 module.exports = app

@@ -17,9 +17,10 @@ app.use('/', (req, res) => {
 
 app.use('/api/auth', authRouter)
 
-
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
+
+console.log("Export APP")
 
 module.exports = app

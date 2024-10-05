@@ -1,24 +1,42 @@
+const typeorm = require('typeorm')
 const express = require('express')
 const cors = require('cors')
-const authRouter = require('./routes/authRoutes')
+const authRouter = require('./src/routes/authRoutes')
+const dotenv = require('dotenv')
 
-const app = express()
+dotenv.config()
 
-const port = 3000
-
-app.use(cors())
-app.use(express.json())
-
-app.get('/', (req, res) => {
-    res.status(200).json("Server is running")
+const dataSource = new typeorm.DataSource({
+    type: "postgres",
+    host: process.env.POSTGRES_HOST,
+    port: 5432,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DATABASE,
+    synchronize: true,
+    entities: [
+        require("./entity/Post"), 
+        require("./entity/Category")
+    ],
 })
 
-app.use('/api/auth', authRouter)
+dataSource.initialize()
+    .then(() => {
+        const app = express()
+        const port = 3000
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`)
-})
+        app.use(cors())
+        app.use(express.json())
 
-console.log("Export APP")
+        app.get('/', (req, res) => {
+            res.status(200).json("Server is running")
+        })
 
+        app.use('/api/auth', authRouter)
+
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`)
+        })
+    })
+    
 module.exports = app
